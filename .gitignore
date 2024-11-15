@@ -1,10 +1,8 @@
-# Wordpress - ignore core, configuration, examples, uploads and logs.
-# https://github.com/github/gitignore/blob/main/WordPress.gitignore
-
+# Ignore PHP
 /php/
 
-# Core
-#
+# Wordpress Core
+# Downloaded by run.ps1
 # Note: if you want to stage/commit WP core files
 # you can delete this whole section/until Configuration.
 /wordpress/wp-admin/
@@ -19,32 +17,20 @@
 /wordpress/wp-*.php
 /wordpress/xmlrpc.php
 
-# Configuration
+# Must include Wordpress configuration
 !/wordpress/wp-config.php
 
-# Example themes
+# Ignore Example themes
 /wordpress/wp-content/themes/twenty*/
 
-# Plugins
+# Ignore plugins
 /wordpress/wp-content/plugins/hello.php
 /wordpress/wp-content/plugins/akismet/
+
+# SQLite for Wordpress
+# Downloaded by run.ps1
 /wordpress/wp-content/plugins/sqlite-database-integration/
 /wordpress/wp-content/db.php
 
-# Uploads
-#/wp-content/uploads/
-
-# Log files
+# Ignore Log files
 *.log
-
-# All plugins
-#
-# Note: If you wish to whitelist plugins,
-# uncomment the next line
-#/wp-content/plugins
-
-# All themes
-#
-# Note: If you wish to whitelist themes,
-# uncomment the next line
-#/wp-content/themes

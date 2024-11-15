@@ -1,4 +1,4 @@
-# WordPress Portable
+# WordPress & PHP Setup Automation Script
 
 This PowerShell script automates the setup of a local development environment for WordPress using a portable PHP installation. It also integrates the SQLite Database Integration plugin for WordPress to allow usage without MySQL. This makes it easy to quickly get a WordPress site running locally with minimal manual configuration.
 
@@ -61,6 +61,94 @@ This PowerShell script automates the setup of a local development environment fo
 - **Portability**: The script sets up PHP and WordPress as portable installations, meaning you can move the entire directory to another location and it will still work.
 - **SQLite as Database**: This script configures WordPress to use SQLite, making it very easy to get started without needing to set up MySQL.
 
+## .gitignore Documentation
+
+This `.gitignore` file is intended for a WordPress project that uses a portable PHP setup and the SQLite Database Integration plugin. It helps ensure that only necessary files are tracked in the repository while excluding automatically downloaded components and temporary files.
+
+### Sections Overview
+
+#### Ignore PHP Directory
+
+The `./php/` directory contains the portable PHP installation, which is downloaded and configured by the script. To keep the repository clean and avoid versioning large binaries, this directory is ignored:
+
+```
+# Ignore PHP installation
+/php/
+```
+
+#### Ignore WordPress Core Files
+
+WordPress core files are downloaded by the `run.ps1` script. If you want to track WordPress core files in your repository (e.g., for custom modifications), you can remove this section. This section excludes everything related to WordPress core that is redundant to version control:
+
+```
+# Ignore WordPress core files
+/wordpress/wp-admin/
+/wordpress/wp-content/index.php
+/wordpress/wp-content/languages
+/wordpress/wp-content/plugins/index.php
+/wordpress/wp-content/themes/index.php
+/wordpress/wp-includes/
+/wordpress/index.php
+/wordpress/license.txt
+/wordpress/readme.html
+/wordpress/wp-*.php
+/wordpress/xmlrpc.php
+```
+
+#### Include WordPress Configuration File
+
+WordPress requires a `wp-config.php` file for configuration. This file may contain sensitive information, but for a local or development environment, it is often necessary to version it to keep track of database settings and other configurations. Therefore, the `wp-config.php` file is explicitly included:
+
+```
+# Include WordPress configuration file
+!/wordpress/wp-config.php
+```
+
+#### Ignore Example Themes
+
+The default WordPress themes, like `twentytwenty` and similar, are not essential unless you are customizing them. These files are ignored:
+
+```
+# Ignore default example themes
+/wordpress/wp-content/themes/twenty*/
+```
+
+#### Ignore Default Plugins
+
+WordPress comes with a few default plugins, such as `hello.php` and `Akismet`. These plugins are often not required for custom projects, and therefore they are ignored:
+
+```
+# Ignore default plugins
+/wordpress/wp-content/plugins/hello.php
+/wordpress/wp-content/plugins/akismet/
+```
+
+#### Ignore SQLite Database Integration Plugin
+
+The SQLite Database Integration plugin is downloaded and configured by the setup script. It is excluded from version control to avoid duplicating files that are automatically set up:
+
+```
+# Ignore SQLite Database Integration plugin and database file
+/wordpress/wp-content/plugins/sqlite-database-integration/
+/wordpress/wp-content/db.php
+```
+
+#### Ignore Log Files
+
+Log files are generated during runtime and are not useful for version control. This rule helps keep the repository clean from any log files that may be generated:
+
+```
+# Ignore log files
+*.log
+```
+
+### Customizing Your .gitignore
+
+- If you wish to include WordPress core files or specific plugins/themes, simply remove the respective lines from the `.gitignore` file.
+- If you are working on a production setup, be cautious about including sensitive files like `wp-config.php`, which may contain credentials.
+
+By using this `.gitignore` file, you can ensure that your repository remains clean, only tracking the necessary configuration and custom files while excluding auto-downloaded and generated content.
+
 ## Troubleshooting
 
 - **PHP Not Stopping**: If the PHP server does not stop when pressing a key, you can manually stop it by using the Task Manager or running `Stop-Process -Name php -Force` in PowerShell.
@@ -78,5 +166,5 @@ Contributions are welcome! Feel free to open an issue or submit a pull request i
 
 - [WordPress](https://wordpress.org/)
 - [PHP for Windows](https://windows.php.net/)
-- [SQLite Database Integration Plugin](https://downloads.wordpress.org/plugin/sqlite-database-integration.zip)
+- [SQLite Database Integration Plugin](https://wordpress.org/plugins/sqlite-database-integration/)
 
