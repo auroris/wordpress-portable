@@ -20,7 +20,7 @@
 /wordpress/xmlrpc.php
 
 # Configuration
-wp-config.php
+#wp-config.php
 
 # Example themes
 /wordpress/wp-content/themes/twenty*/

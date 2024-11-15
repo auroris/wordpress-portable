@@ -5,6 +5,7 @@ $phpIniPath = "$phpDir/php.ini"
 
 $wordpressUrl = "https://wordpress.org/latest.zip"
 $wordpressDir = "./wordpress"
+$wpConfigPath = "$wordpressDir/wp-config.php"
 
 $pluginUrl = "https://downloads.wordpress.org/plugin/sqlite-database-integration.zip"
 $pluginDir = "$wordpressDir/wp-content/plugins/sqlite-database-integration"
@@ -42,11 +43,21 @@ if (!(Test-Path -Path $phpDir)) {
                 }
             }
 
-            # Enable pdo_mysql extension unconditionally
-            if ($_ -match '^\s*;?\s*extension\s*=\s*pdo_mysql') {
-                $_ = 'extension=pdo_mysql'
+            # Enable sqlite3
+            if ($_ -match '^\s*;?\s*extension\s*=\s*sqlite3') {
+                            $_ = 'extension=sqlite3'
             }
-
+            
+            # Enable pdo_mysql
+            #if ($_ -match '^\s*;?\s*extension\s*=\s*pdo_mysql') {
+            #    $_ = 'extension=pdo_mysql'
+            #}
+            
+            # Enable pdo_sqlite
+            #if ($_ -match '^\s*;?\s*extension\s*=\s*pdo_sqlite') {
+            #                $_ = 'extension=pdo_sqlite'
+            #}
+            
             # Return the modified or unmodified line
             $_
         }
@@ -79,20 +90,10 @@ if (!(Test-Path -Path $pluginDir)) {
     Invoke-WebRequest -Uri $pluginUrl -OutFile "sqlite-plugin.zip"
     Expand-Archive -Path "sqlite-plugin.zip" -DestinationPath "$wordpressDir/wp-content/plugins" -Force
     Remove-Item -Path "sqlite-plugin.zip" -Force
+    Copy-Item -Path $dbCopyPath -Destination $dbPhpPath -Force
 }
 
-# Inform user of completion
-Write-Output "PHP has been downloaded, extracted to '$phpDir', and configured for portability."
-if (Test-Path -Path "$wordpressDir/wp-admin") {
-    Write-Output "WordPress has been downloaded and extracted to '$wordpressDir'."
-} else {
-    Write-Output "WordPress extraction not needed, as it already exists in '$wordpressDir'."
-}
-if (Test-Path -Path $pluginDir) {
-    Write-Output "SQLite Database Integration plugin has been downloaded and installed to '$pluginDir'."
-} else {
-    Write-Output "SQLite Database Integration plugin installation not needed, as it already exists in '$pluginDir'."
-}
+Write-Output "The default credentials are username 'admin' and password 'admin'."
 
-# Start PHP's built-in development server
+# Step 6: Start PHP's built-in development server
 Start-Process -NoNewWindow -FilePath "php\php" -ArgumentList "-S localhost:8000 -t ./wordpress -c ./php/php.ini"
