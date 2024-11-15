@@ -20,7 +20,7 @@
 /wordpress/xmlrpc.php
 
 # Configuration
-#wp-config.php
+!/wordpress/wp-config.php
 
 # Example themes
 /wordpress/wp-content/themes/twenty*/
@@ -29,6 +29,7 @@
 /wordpress/wp-content/plugins/hello.php
 /wordpress/wp-content/plugins/akismet/
 /wordpress/wp-content/plugins/sqlite-database-integration/
+/wordpress/wp-content/db.php
 
 # Uploads
 #/wp-content/uploads/

@@ -25,16 +25,13 @@ if (!(Test-Path -Path $phpDir)) {
         # Read the contents of php.ini into an array of lines
         $phpIniContent = Get-Content -Path $phpIniPath
 
-        # Initialize a counter for occurrences of ";extension=mysqli"
-        $mysqliCount = 0
-
         # Process each line to modify specific settings
         $phpIniContent = $phpIniContent | ForEach-Object {
             # Modify extension_dir to use a relative path
             if ($_ -match '^\s*;?\s*extension_dir\s*=') {
                 $_ = 'extension_dir = ".\ext"'
             }
-
+            
             # Enable only the second occurrence of `;extension=mysqli`
             if ($_ -match '^\s*;?\s*extension\s*=\s*mysqli') {
                 $mysqliCount++
@@ -48,15 +45,10 @@ if (!(Test-Path -Path $phpDir)) {
                             $_ = 'extension=sqlite3'
             }
             
-            # Enable pdo_mysql
-            #if ($_ -match '^\s*;?\s*extension\s*=\s*pdo_mysql') {
-            #    $_ = 'extension=pdo_mysql'
-            #}
-            
             # Enable pdo_sqlite
-            #if ($_ -match '^\s*;?\s*extension\s*=\s*pdo_sqlite') {
-            #                $_ = 'extension=pdo_sqlite'
-            #}
+            if ($_ -match '^\s*;?\s*extension\s*=\s*pdo_sqlite') {
+                            $_ = 'extension=pdo_sqlite'
+            }
             
             # Return the modified or unmodified line
             $_
@@ -90,10 +82,21 @@ if (!(Test-Path -Path $pluginDir)) {
     Invoke-WebRequest -Uri $pluginUrl -OutFile "sqlite-plugin.zip"
     Expand-Archive -Path "sqlite-plugin.zip" -DestinationPath "$wordpressDir/wp-content/plugins" -Force
     Remove-Item -Path "sqlite-plugin.zip" -Force
-    Copy-Item -Path $dbCopyPath -Destination $dbPhpPath -Force
+    Copy-Item -Path "$wordpressDir/wp-content/plugins/sqlite-database-integration/db.copy" -Destination "$wordpressDir/wp-content/db.php" -Force
 }
 
 Write-Output "The default credentials are username 'admin' and password 'admin'."
 
 # Step 6: Start PHP's built-in development server
-Start-Process -NoNewWindow -FilePath "php\php" -ArgumentList "-S localhost:8000 -t ./wordpress -c ./php/php.ini"
+$phpProcess = Start-Process -FilePath "php\php" -ArgumentList "-S localhost:8000 -t ./wordpress -c ./php/php.ini" -NoNewWindow -PassThru
+
+Write-Output "Press any key to stop the server..."
+
+# Wait for any key press
+[Console]::ReadKey($true) | Out-Null
+
+try {
+    Stop-Process -Id $phpProcess.Id -Force
+} catch {
+    Write-Output "Failed to stop PHP server: $_"
+}
