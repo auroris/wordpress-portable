@@ -1,6 +1,6 @@
 # Wordpress Portable
 
-This PowerShell script automates the setup of a local development environment for WordPress using a portable PHP installation. It also integrates the SQLite Database Integration plugin for WordPress to allow usage without MySQL. This makes it easy to quickly get a WordPress site running locally with minimal manual configuration.
+This PowerShell script automates the setup of a local development environment for WordPress using a portable PHP installation. It also integrates the SQLite Database Integration plugin for WordPress to allow usage without MySQL. This makes it easy to quickly get a WordPress site running locally with minimal installation and configuration.
 
 ## Features
 
