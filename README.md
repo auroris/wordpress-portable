@@ -26,7 +26,7 @@ This PowerShell script automates the setup of a local development environment fo
 2. **Run the Script**: Execute the script using PowerShell.
 
    ```powershell
-   .\wordpress_php_setup.ps1
+   .\run.ps1
    ```
 
 3. **Follow Prompts**: The script will download PHP, WordPress, and the SQLite plugin, then start a local development server.
