@@ -1,36 +1,19 @@
-# Ignore PHP
-/php/
-
-# Wordpress Core
-# Downloaded by run.ps1
-# Note: if you want to stage/commit WP core files
-# you can delete this whole section/until Configuration.
-/wordpress/wp-admin/
-/wordpress/wp-content/index.php
-/wordpress/wp-content/languages
-/wordpress/wp-content/plugins/index.php
-/wordpress/wp-content/themes/index.php
-/wordpress/wp-includes/
-/wordpress/index.php
-/wordpress/license.txt
-/wordpress/readme.html
-/wordpress/wp-*.php
-/wordpress/xmlrpc.php
+# Ignore Wordpress (unless you want it)
+/wordpress/*
 
 # Must include Wordpress configuration
 !/wordpress/wp-config.php
 
-# Ignore Example themes
-/wordpress/wp-content/themes/twenty*/
+# Ignore PHP
+/php/*
 
-# Ignore plugins
-/wordpress/wp-content/plugins/hello.php
-/wordpress/wp-content/plugins/akismet/
+# Must include php.ini configuration
+!/php/php.ini
 
-# SQLite for Wordpress
-# Downloaded by run.ps1
-/wordpress/wp-content/plugins/sqlite-database-integration/
-/wordpress/wp-content/db.php
+# Ignore nginx
+/nginx-1.27.4/*
+
+# Must include website configuration
 
 # Ignore Log files
 *.log

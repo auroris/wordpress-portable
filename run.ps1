@@ -3,21 +3,29 @@
 # URL to download PHP package -- remember to UPDATE THIS
 $phpUrl = "https://windows.php.net/downloads/releases/php-8.4.4-nts-Win32-vs17-x64.zip"
 
-# Directory to store PHP installation
-$phpDir = "./php"
-
-# Path to php.ini file
-$phpIniPath = "$phpDir/php.ini"
+# URL to download NGinx
+$nginxUrl = "http://nginx.org/download/nginx-1.27.4.zip"
 
 # URL to download WordPress
 $wordpressUrl = "https://wordpress.org/latest.zip"
-# Directory to store WordPress installation
-$wordpressDir = "./wordpress"
 
 # URL to download SQLite Database Integration plugin
 $pluginUrl = "https://downloads.wordpress.org/plugin/sqlite-database-integration.zip"
+
+# Directory to store PHP installation
+$phpDir = "./php"
+
+# Directory to store WordPress installation
+$wordpressDir = "./wordpress"
+
+# Directory to store NGinx installation
+$nginxDir = "./nginx-1.27.4"
+
 # Directory to store SQLite Database Integration plugin
 $pluginDir = "$wordpressDir/wp-content/plugins/sqlite-database-integration"
+
+# Path to php.ini file
+$phpIniPath = "$phpDir/php.ini"
 
 # Step 1: Download and extract PHP if ./php does not exist
 if (!(Test-Path -Path $phpDir)) {
@@ -28,79 +36,15 @@ if (!(Test-Path -Path $phpDir)) {
     Invoke-WebRequest -Uri $phpUrl -OutFile "$phpDir.zip"
     Expand-Archive -Path "$phpDir.zip" -DestinationPath $phpDir -Force
     Remove-Item -Path "$phpDir.zip" -Force
-    
-    # Copy php.ini-development to php.ini to use as configuration
-    Copy-Item -Path "$phpDir/php.ini-development" -Destination "$phpDir/php.ini" -Force
-
-    if (Test-Path -Path $phpIniPath) {
-        # Read the contents of php.ini into an array of lines for modification
-        $phpIniContent = Get-Content -Path $phpIniPath
-
-        # Initialize counter for mysqli occurrences
-        $mysqliCount = 0
-
-        # Define a mapping for extensions that need to be enabled
-        $extensions = @{
-            'sqlite3'    = 'extension=sqlite3'
-            'openssl'    = 'extension=openssl'
-            'curl'       = 'extension=curl'
-            'gd'         = 'extension=gd'
-            'mbstring'   = 'extension=mbstring'
-            'exif'       = 'extension=exif'
-            'pdo_sqlite' = 'extension=pdo_sqlite'
-            'zip'        = 'extension=zip'
-            'fileinfo'   = 'extension=fileinfo'
-            'intl'       = 'extension=intl'
-        }
-
-        # Process each line to modify specific settings
-        $modifiedContent = $phpIniContent | ForEach-Object {
-            $line = $_
-
-            # Modify extension_dir to use a relative path for portability
-            if ($line -match '^\s*;?\s*extension_dir\s*=') {
-                $line = 'extension_dir = ".\ext"'
-            }
-            
-            # Adjust file upload and memory settings
-            if ($line -match '^\s*;?\s*upload_max_filesize\s*=') {
-                $line = 'upload_max_filesize = 256M'
-            }
-            if ($line -match '^\s*;?\s*post_max_size\s*=') {
-                $line = 'post_max_size = 256M'
-            }
-            if ($line -match '^\s*;?\s*memory_limit\s*=') {
-                $line = 'memory_limit = 512M'
-            }
-
-            # Enable only the second occurrence of extension=mysqli to avoid conflicts
-            if ($line -match '^\s*;?\s*extension\s*=\s*mysqli') {
-                $mysqliCount++
-                if ($mysqliCount -eq 2) {
-                    $line = 'extension=mysqli'
-                }
-            }
-
-            # Enable other extensions as defined in the hashtable
-            foreach ($ext in $extensions.Keys) {
-                if ($line -match "^\s*;?\s*extension\s*=\s*$ext") {
-                    $line = $extensions[$ext]
-                    break
-                }
-            }
-
-            $line
-        }
-
-        # Write the modified contents back to php.ini
-        Set-Content -Path $phpIniPath -Value $modifiedContent -Force
-    }
 }
 
-# Step 2: Prepare PHP for portability by setting the PHPRC environment variable
-# Set PHPRC environment variable to point to the PHP directory
-$phpPath = (Resolve-Path "$phpDir/*").Path
-[Environment]::SetEnvironmentVariable("PHPRC", $phpPath, [System.EnvironmentVariableTarget]::Process)
+# Step 2: Download and extract nginx webserver if it doesn't exist
+if (!(Test-Path -Path $nginxDir)) {
+    # Download and unzip nginx
+    Invoke-WebRequest -Uri $nginxUrl -OutFile "nginx.zip"
+    Expand-Archive -Path "nginx.zip" -DestinationPath "./" -Force
+    Remove-Item -Path "nginx.zip" -Force
+}
 
 # Step 3: Download and extract WordPress if ./wordpress/wp-admin does not exist
 if (!(Test-Path -Path "$wordpressDir/wp-admin")) {
@@ -126,7 +70,11 @@ if (!(Test-Path -Path $pluginDir)) {
     Copy-Item -Path "$wordpressDir/wp-content/plugins/sqlite-database-integration/db.copy" -Destination "$wordpressDir/wp-content/db.php" -Force
 }
 
-# Step 6: Start PHP's built-in development server
+# Step 5: Start PHP's built-in development server
+# Set PHPRC environment variable to point to the PHP directory
+$phpPath = (Resolve-Path "$phpDir/*").Path
+[Environment]::SetEnvironmentVariable("PHPRC", $phpPath, [System.EnvironmentVariableTarget]::Process)
+
 # Launch PHP's built-in development server to serve WordPress
 $phpProcess = Start-Process -FilePath "php\php" -ArgumentList "-S localhost:8000 -t ./wordpress -c ./php/php.ini" -NoNewWindow -PassThru
 
