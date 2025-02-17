@@ -29,53 +29,60 @@ if (!(Test-Path -Path $phpDir)) {
     Expand-Archive -Path "$phpDir.zip" -DestinationPath $phpDir -Force
     Remove-Item -Path "$phpDir.zip" -Force
     
-    # Rename php.ini-development to php.ini to use as configuration
-    Rename-Item -Path "$phpDir/php.ini-development" -NewName "php.ini"
+    # Copy php.ini-development to php.ini to use as configuration
+    Copy-Item -Path "$phpDir/php.ini-development" -Destination "$phpDir/php.ini" -Force
+
     if (Test-Path -Path $phpIniPath) {
         # Read the contents of php.ini into an array of lines for modification
         $phpIniContent = Get-Content -Path $phpIniPath
 
+        # Initialize counter for mysqli occurrences
+        $mysqliCount = 0
+
+        # Define a mapping for extensions that need to be enabled
+        $extensions = @{
+            'sqlite3'    = 'extension=sqlite3'
+            'openssl'    = 'extension=openssl'
+            'curl'       = 'extension=curl'
+            'gd'         = 'extension=gd'
+            'mbstring'   = 'extension=mbstring'
+            'exif'       = 'extension=exif'
+            'pdo_sqlite' = 'extension=pdo_sqlite'
+            'zip'        = 'extension=zip'
+            'fileinfo'   = 'extension=fileinfo'
+            'intl'	 = 'extension=intl'
+        }
+
         # Process each line to modify specific settings
-        $phpIniContent = $phpIniContent | ForEach-Object {
+        $modifiedContent = $phpIniContent | ForEach-Object {
+            $line = $_
+
             # Modify extension_dir to use a relative path for portability
-            if ($_ -match '^\s*;?\s*extension_dir\s*=') {
-                $_ = 'extension_dir = ".\ext"'
+            if ($line -match '^\s*;?\s*extension_dir\s*=') {
+                $line = 'extension_dir = ".\ext"'
             }
-            
-            # Enable only the second occurrence of `;extension=mysqli` to avoid conflicts
-            if ($_ -match '^\s*;?\s*extension\s*=\s*mysqli') {
+
+            # Enable only the second occurrence of extension=mysqli to avoid conflicts
+            if ($line -match '^\s*;?\s*extension\s*=\s*mysqli') {
                 $mysqliCount++
                 if ($mysqliCount -eq 2) {
-                    $_ = 'extension=mysqli'
+                    $line = 'extension=mysqli'
                 }
             }
 
-            # Enable sqlite3 extension
-            if ($_ -match '^\s*;?\s*extension\s*=\s*sqlite3') {
-                $_ = 'extension=sqlite3'
+            # Enable other extensions as defined in the hashtable
+            foreach ($ext in $extensions.Keys) {
+                if ($line -match "^\s*;?\s*extension\s*=\s*$ext") {
+                    $line = $extensions[$ext]
+                    break
+                }
             }
-            
-            # Enable openssl extension
-            if ($_ -match '^\s*;?\s*extension\s*=\s*openssl') {
-                $_ = 'extension=openssl'
-            }
-            
-            # Enable curl extension
-            if ($_ -match '^\s*;?\s*extension\s*=\s*curl') {
-                $_ = 'extension=curl'
-            }
-            
-            # Enable pdo_sqlite extension
-            if ($_ -match '^\s*;?\s*extension\s*=\s*pdo_sqlite') {
-                $_ = 'extension=pdo_sqlite'
-            }
-            
-            # Return the modified or unmodified line
-            $_
+
+            $line
         }
 
         # Write the modified contents back to php.ini
-        Set-Content -Path $phpIniPath -Value $phpIniContent -Force
+        Set-Content -Path $phpIniPath -Value $modifiedContent -Force
     }
 }
 
