@@ -1,8 +1,11 @@
 # Define URLs and file paths
-# URL to download PHP package
-$phpUrl = "https://windows.php.net/downloads/releases/php-8.3.13-nts-Win32-vs16-x64.zip"
+
+# URL to download PHP package -- remember to UPDATE THIS
+$phpUrl = "https://windows.php.net/downloads/releases/php-8.4.4-nts-Win32-vs17-x64.zip"
+
 # Directory to store PHP installation
 $phpDir = "./php"
+
 # Path to php.ini file
 $phpIniPath = "$phpDir/php.ini"
 
@@ -50,6 +53,16 @@ if (!(Test-Path -Path $phpDir)) {
             # Enable sqlite3 extension
             if ($_ -match '^\s*;?\s*extension\s*=\s*sqlite3') {
                 $_ = 'extension=sqlite3'
+            }
+            
+            # Enable openssl extension
+            if ($_ -match '^\s*;?\s*extension\s*=\s*openssl') {
+                $_ = 'extension=openssl'
+            }
+            
+            # Enable curl extension
+            if ($_ -match '^\s*;?\s*extension\s*=\s*curl') {
+                $_ = 'extension=curl'
             }
             
             # Enable pdo_sqlite extension
