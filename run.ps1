@@ -50,7 +50,7 @@ if (!(Test-Path -Path $phpDir)) {
             'pdo_sqlite' = 'extension=pdo_sqlite'
             'zip'        = 'extension=zip'
             'fileinfo'   = 'extension=fileinfo'
-            'intl'	 = 'extension=intl'
+            'intl'       = 'extension=intl'
         }
 
         # Process each line to modify specific settings
@@ -60,6 +60,17 @@ if (!(Test-Path -Path $phpDir)) {
             # Modify extension_dir to use a relative path for portability
             if ($line -match '^\s*;?\s*extension_dir\s*=') {
                 $line = 'extension_dir = ".\ext"'
+            }
+            
+            # Adjust file upload and memory settings
+            if ($line -match '^\s*;?\s*upload_max_filesize\s*=') {
+                $line = 'upload_max_filesize = 256M'
+            }
+            if ($line -match '^\s*;?\s*post_max_size\s*=') {
+                $line = 'post_max_size = 256M'
+            }
+            if ($line -match '^\s*;?\s*memory_limit\s*=') {
+                $line = 'memory_limit = 512M'
             }
 
             # Enable only the second occurrence of extension=mysqli to avoid conflicts
